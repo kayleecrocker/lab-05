@@ -82,15 +82,26 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
             cityDialogFragment.show(getSupportFragmentManager(),"City Details");
         });
 
+        cityListView.setOnItemLongClickListener((adapterView, view, i, l) -> {
+            City city = cityArrayAdapter.getItem(i);
+            deleteCity(city);
+            return false;
+        });
+
     }
 
     @Override
     public void updateCity(City city, String title, String year) {
+
+        DocumentReference docRef = citiesRef.document(city.getName());
+        docRef.delete();
+
         city.setName(title);
         city.setProvince(year);
         cityArrayAdapter.notifyDataSetChanged();
 
-        // Updating the database using delete + addition
+        docRef = citiesRef.document(city.getName());
+        docRef.set(city);
     }
 
     @Override
@@ -100,6 +111,12 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
         DocumentReference docRef = citiesRef.document(city.getName());
         docRef.set(city);
+    }
+
+    public void deleteCity(City city) {
+        // long click an item to delete
+        DocumentReference docRef = citiesRef.document(city.getName());
+        docRef.delete();
     }
 
     public void addDummyData(){
